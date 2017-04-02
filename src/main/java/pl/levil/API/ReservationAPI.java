@@ -3,6 +3,7 @@ package pl.levil.API;
 
 import pl.levil.Main;
 import pl.levil.model.Reservation;
+import pl.levil.model.ReservationStatus;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -11,6 +12,8 @@ import javax.persistence.criteria.Root;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -34,7 +37,7 @@ public class ReservationAPI {
             CriteriaQuery<Reservation> reservationCriteriaQuery = criteriaBuilder.createQuery(Reservation.class);
             Root<Reservation> reservationRoot = reservationCriteriaQuery.from(Reservation.class);
 
-            reservationCriteriaQuery.select(reservationRoot);
+           reservationCriteriaQuery.select(reservationRoot);
 
             reservations = entityManager.createQuery(reservationCriteriaQuery).getResultList();
         }
@@ -48,6 +51,80 @@ public class ReservationAPI {
 
         return reservations;
     }
+
+    @Path("{year}/{month}")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.TEXT_PLAIN)
+    public List<Reservation> getAllReservations(@PathParam("year")int year, @PathParam("month") int month){
+        Reservation res = new Reservation();
+        List<Reservation> reservations = null;
+
+
+        EntityManager entityManager = Main.getEntityManagerFactory().createEntityManager();
+        entityManager.getTransaction().begin();
+
+        try{
+            CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+            CriteriaQuery<Reservation> reservationCriteriaQuery = criteriaBuilder.createQuery(Reservation.class);
+            Root<Reservation> reservationRoot = reservationCriteriaQuery.from(Reservation.class);
+
+
+            reservationCriteriaQuery.select(reservationRoot).
+                    where(
+                            criteriaBuilder.equal(criteriaBuilder.function(
+                                    "year",Integer.class,reservationRoot.get("date")),year
+                            ),
+                            criteriaBuilder.equal(criteriaBuilder.function(
+                                    "month",Integer.class,reservationRoot.get("date")),month
+                            )
+                    );
+
+            reservations = entityManager.createQuery(reservationCriteriaQuery).getResultList();
+        }
+        catch (Exception ex){
+            System.out.println(ex.getMessage());
+            entityManager.getTransaction().rollback();
+        }
+        finally {
+            entityManager.close();
+        }
+
+        return reservations;
+    }
+
+
+    @Path("{status}")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<Reservation> getAllReservationsWithStatus(@PathParam("status")ReservationStatus status){
+
+        List<Reservation> reservations = null;
+
+        EntityManager entityManager = Main.getEntityManagerFactory().createEntityManager();
+        entityManager.getTransaction().begin();
+
+        try{
+            CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+            CriteriaQuery<Reservation> reservationCriteriaQuery = criteriaBuilder.createQuery(Reservation.class);
+            Root<Reservation> reservationRoot = reservationCriteriaQuery.from(Reservation.class);
+
+            reservationCriteriaQuery.select(reservationRoot).
+                    where(criteriaBuilder.equal(reservationRoot.get("status"), status));
+
+            reservations = entityManager.createQuery(reservationCriteriaQuery).getResultList();
+        }
+        catch (Exception ex){
+            System.out.println(ex.getMessage());
+            entityManager.getTransaction().rollback();
+        }
+        finally {
+            entityManager.close();
+        }
+
+        return reservations;
+    }
+
 
     @Path("reservation/{id}")
     @POST

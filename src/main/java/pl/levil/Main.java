@@ -33,7 +33,7 @@ public class Main {
     }
 
     private static HttpServer startServer() {
-        final ResourceConfig rc = new ResourceConfig().packages("pl.levil");
+        final ResourceConfig rc = new ResourceConfig().packages("pl.levil.API");
         return GrizzlyHttpServerFactory.createHttpServer(URI.create(BASE_URI), rc);
     }
 }

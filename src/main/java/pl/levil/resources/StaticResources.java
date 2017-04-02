@@ -10,6 +10,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import java.time.LocalDate;
 import java.util.Date;
 
 /**
@@ -22,7 +23,10 @@ public class StaticResources {
     }
 
     private static void addTestReservations() {
-        addItemToDatabase(new Reservation(new Date(),15, ReservationStatus.pending,getRoomFromDatabase("P4.1"),"test","test"));
+        addItemToDatabase(new Reservation(new Date() ,15, ReservationStatus.pending,getRoomFromDatabase("P4.1"),"test1","test1"));
+        addItemToDatabase(new Reservation(new Date(),15, ReservationStatus.pending,getRoomFromDatabase("P5.2"),"test2","test2"));
+        addItemToDatabase(new Reservation(new Date(),15, ReservationStatus.pending,getRoomFromDatabase("P1.1"),"test3","test3"));
+        addItemToDatabase(new Reservation(new Date(),15, ReservationStatus.pending,getRoomFromDatabase("P1.2"),"test4","test4"));
     }
 
     private static void addTestRooms() {
